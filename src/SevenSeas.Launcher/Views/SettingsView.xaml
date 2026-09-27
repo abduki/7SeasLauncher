@@ -1,0 +1,165 @@
+<UserControl x:Class="SevenSeas.Launcher.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Margin="14,12,14,6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="188" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <ListBox Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Top"
+               AutomationProperties.Name="Settings sections"
+               SelectionMode="Single"
+               SelectedIndex="{Binding SelectedSectionIndex}">
+        <ListBoxItem Content="Folders" />
+        <ListBoxItem Content="Metadata" />
+        <ListBoxItem Content="Bookmarks" />
+        <ListBoxItem Content="Advanced" />
+      </ListBox>
+
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="0,0,12,0">
+        <Grid>
+          <!-- Folders -->
+          <StackPanel MaxWidth="720" HorizontalAlignment="Left"
+                      Visibility="{Binding ShowFolders, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Folders" Style="{StaticResource PageTitle}" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,0,0,16"
+                       Text="Where 7SeasLauncher keeps games, in-progress downloads and retained archives." />
+
+            <TextBlock Text="Games folder" Style="{StaticResource FieldLabel}" />
+            <Grid Margin="0,0,0,14">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0" Text="{Binding GamesFolder, UpdateSourceTrigger=PropertyChanged}" />
+              <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseGamesFolderCommand}" />
+            </Grid>
+
+            <TextBlock Text="Temp folder" Style="{StaticResource FieldLabel}" />
+            <Grid Margin="0,0,0,14">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0" Text="{Binding TempFolder, UpdateSourceTrigger=PropertyChanged}" />
+              <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseTempFolderCommand}" />
+            </Grid>
+
+            <TextBlock Text="Trash folder" Style="{StaticResource FieldLabel}" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0" Text="{Binding TrashFolder, UpdateSourceTrigger=PropertyChanged}" />
+              <Button Grid.Column="1" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseTrashFolderCommand}" />
+            </Grid>
+          </StackPanel>
+
+          <!-- Metadata -->
+          <StackPanel MaxWidth="720" HorizontalAlignment="Left"
+                      Visibility="{Binding ShowMetadata, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Metadata" Style="{StaticResource PageTitle}" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,0,0,16"
+                       Text="Cover art and proper game titles come from SteamGridDB. Without a key, 7SeasLauncher falls back to the filename and a placeholder tile." />
+
+            <TextBlock Text="SteamGridDB API key" Style="{StaticResource FieldLabel}" />
+            <Grid Margin="0,0,0,6">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0" Text="{Binding SteamGridDbApiKey, UpdateSourceTrigger=PropertyChanged}" />
+              <Button Grid.Column="1" Content="Test API key" Margin="8,0,0,0"
+                      Command="{Binding TestApiKeyCommand}"
+                      IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+            </Grid>
+            <TextBlock TextWrapping="Wrap" Opacity="0.6" FontSize="12"
+                       Text="Get a free key at steamgriddb.com/profile/preferences/api. Testing makes one real lookup and reports the result in the status bar." />
+          </StackPanel>
+
+          <!-- Bookmarks -->
+          <StackPanel MaxWidth="860" HorizontalAlignment="Left"
+                      Visibility="{Binding ShowBookmarks, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Bookmarks" Style="{StaticResource PageTitle}" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,0,0,16"
+                       Text="The bookmarks bar on the Browse tab. A bookmark is browsable as soon as it has an address; giving it a search URL also makes it searchable." />
+
+            <ItemsControl ItemsSource="{Binding Bookmarks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Margin="0,0,0,6" Padding="12,10" CornerRadius="8" Background="#14FFFFFF">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+
+                      <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Address}" Opacity="0.65" FontSize="12" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+
+                      <TextBlock Grid.Column="1" Text="{Binding SearchabilityLabel}" VerticalAlignment="Center"
+                                 Opacity="0.6" FontSize="12" Margin="12,0,16,0" />
+
+                      <Button Grid.Column="2" Content="Edit" Margin="0,0,6,0" Click="OnEditBookmarkClick"
+                              AutomationProperties.Name="Edit bookmark" />
+                      <Button Grid.Column="3" Content="Remove" Click="OnRemoveBookmarkClick"
+                              AutomationProperties.Name="Remove bookmark" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Button Content="Add bookmark" HorizontalAlignment="Left" Margin="0,8,0,0" Click="OnAddBookmarkClick"
+                    AutomationProperties.Name="Add bookmark" />
+          </StackPanel>
+
+          <!-- Advanced -->
+          <StackPanel MaxWidth="820" HorizontalAlignment="Left"
+                      Visibility="{Binding ShowAdvanced, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Advanced" Style="{StaticResource PageTitle}" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,0,0,16"
+                       Text="Rarely needed. The defaults are right for almost everyone." />
+
+            <TextBlock Text="Antivirus" FontWeight="SemiBold" Margin="0,0,0,6" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.75" FontSize="12" Margin="0,0,0,8"
+                       Text="If downloads keep failing or vanishing, exclude 7SeasLauncher's own folder. Antivirus software can quarantine an archive while it is still being written or unpacked." />
+            <Button Content="Antivirus exclusions…" Command="{Binding ShowAntivirusExclusionsCommand}"
+                    HorizontalAlignment="Left" Margin="0,0,0,22"
+                    AutomationProperties.Name="Antivirus exclusions" />
+
+            <TextBlock Text="Files and diagnostics" Style="{StaticResource FieldLabel}" />
+            <WrapPanel>
+              <Button Content="Free up space" Command="{Binding FreeUpSpaceCommand}" Margin="0,0,8,8"
+                      ToolTip="Delete leftover archives in Trash and Temp" />
+              <Button Content="Open bookmarks folder" Command="{Binding OpenSchemesFolderCommand}" Margin="0,0,8,8" />
+              <Button Content="Open logs folder" Command="{Binding OpenLogsFolderCommand}" Margin="0,0,8,8" />
+              <Button Content="Export diagnostics" Command="{Binding ExportDiagnosticsCommand}" Margin="0,0,8,8" />
+            </WrapPanel>
+          </StackPanel>
+        </Grid>
+      </ScrollViewer>
+    </Grid>
+
+    <Border Grid.Row="1" Padding="14,10" Background="#26000000">
+      <StackPanel Orientation="Horizontal">
+        <Button Content="Save settings" MinWidth="130" Margin="0,0,12,0"
+                Command="{Binding SaveCommand}" AutomationProperties.Name="Save settings" />
+        <TextBlock Text="Bookmarks save as you edit them; the rest is written on Save"
+                   VerticalAlignment="Center" Opacity="0.55" FontSize="12" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

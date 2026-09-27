@@ -1,0 +1,51 @@
+<ui:FluentWindow x:Class="SevenSeas.Launcher.Views.AntivirusExclusionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Antivirus exclusions"
+        Height="580" Width="680" MinWidth="560" MinHeight="440"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        ExtendsContentIntoTitleBar="True">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <ui:TitleBar Grid.Row="0" x:Name="DialogTitleBar" Title="Antivirus exclusions" />
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,12,24,20">
+      <StackPanel>
+        <TextBlock x:Name="HeadingText" Text="Antivirus exclusions" FontSize="21" FontWeight="SemiBold" />
+        <TextBlock x:Name="ExplanationText" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.8" />
+
+        <TextBlock Text="Folder to exclude" FontWeight="SemiBold" Margin="0,20,0,6" />
+        <TextBox x:Name="FoldersBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                 Height="64" VerticalScrollBarVisibility="Auto"
+                 AutomationProperties.Name="Folder to exclude" />
+        <TextBlock Margin="0,6,0,0" Opacity="0.6" FontSize="12" TextWrapping="Wrap"
+                   Text="One exclusion covers everything: downloads land in Temp, are unpacked into Games, and failed archives are kept in Trash." />
+        <Button Content="Copy this path" HorizontalAlignment="Left" Margin="0,10,0,0" Click="OnCopyClick"
+                AutomationProperties.Name="Copy this path" />
+
+        <TextBlock Text="Add it by hand" FontWeight="SemiBold" Margin="0,22,0,6" />
+        <TextBlock TextWrapping="Wrap" Opacity="0.8" Text="Windows Security → Virus &amp; threat protection → Manage settings → Exclusions → Add or remove exclusions → Add a folder." />
+
+        <TextBlock x:Name="StatusText" Margin="0,16,0,0" TextWrapping="Wrap" Opacity="0.85" />
+
+        <CheckBox x:Name="DoNotShowAgainBox" Margin="0,20,0,0"
+                  Content="Don't show this again"
+                  AutomationProperties.Name="Don't show this again" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+          <Button Content="Add automatically (administrator)" Margin="0,0,10,0" Click="OnAddAutomaticallyClick"
+                  AutomationProperties.Name="Add automatically" />
+          <Button Content="Open Windows Security" Margin="0,0,10,0" Click="OnOpenSecurityClick"
+                  AutomationProperties.Name="Open Windows Security" />
+          <Button Content="Close" MinWidth="90" IsCancel="True" Click="OnCloseClick" />
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</ui:FluentWindow>

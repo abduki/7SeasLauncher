@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <!-- The product name users see. The assembly is called 7SeasLauncher, so the executable,
+         the taskbar entry and the Start-menu shortcut all read the same way, while the C#
+         namespaces stay SevenSeas.* because an identifier cannot begin with a digit. -->
+    <AssemblyName>7SeasLauncher</AssemblyName>
+    <RootNamespace>SevenSeas.Launcher</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\assets\7seas.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>7SeasLauncher</Product>
+    <AssemblyTitle>7SeasLauncher</AssemblyTitle>
+    <Company>7SeasLauncher</Company>
+    <Description>Browse game download sites, catch the downloads you start yourself, and keep the library organised.</Description>
+    <Copyright>Copyright (c) 2026 7SeasLauncher</Copyright>
+    <Version>1.2.0</Version>
+    <FileVersion>1.2.0.0</FileVersion>
+    <InformationalVersion>1.2.0</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SevenSeas.Core\SevenSeas.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Ship the repository-level schemes folder next to the executable. -->
+  <ItemGroup>
+    <None Include="..\..\schemes\**\*.json" Link="schemes\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

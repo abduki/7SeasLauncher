@@ -1,0 +1,7 @@
+{
+  "name": "Example Site",
+  "baseUrl": "https://example-game-site.test",
+  "searchUrlTemplate": "https://example-game-site.test/search?q={query}",
+  "archivePasswordHint": null,
+  "notes": "Fictional example scheme shipped with 7SeasLauncher. Copy this file, rename it, and point it at a site you are allowed to use. Only add schemes for sites you have permission to use."
+}

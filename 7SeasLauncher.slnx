@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SevenSeas.Core/SevenSeas.Core.csproj" />
+    <Project Path="src/SevenSeas.Launcher/SevenSeas.Launcher.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SevenSeas.Tests/SevenSeas.Tests.csproj" />
+  </Folder>
+</Solution>

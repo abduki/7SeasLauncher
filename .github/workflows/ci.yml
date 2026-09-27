@@ -1,0 +1,27 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore src/SevenSeas.Launcher/SevenSeas.Launcher.csproj
+
+      - name: Build
+        run: dotnet build src/SevenSeas.Launcher/SevenSeas.Launcher.csproj -c Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/SevenSeas.Tests/SevenSeas.Tests.csproj -c Release

@@ -1,0 +1,29 @@
+<Application x:Class="SevenSeas.Launcher.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:SevenSeas.Launcher.Converters">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ui:ThemesDictionary Theme="Dark" />
+        <ui:ControlsDictionary />
+      </ResourceDictionary.MergedDictionaries>
+
+      <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+      <conv:InverseBooleanConverter x:Key="InverseBool" />
+      <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
+
+      <Style x:Key="PageTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+      </Style>
+
+      <Style x:Key="FieldLabel" TargetType="TextBlock">
+        <Setter Property="Margin" Value="0,0,0,4" />
+        <Setter Property="Opacity" Value="0.75" />
+      </Style>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

@@ -1,0 +1,73 @@
+name: release
+
+# Push a tag like v1.2.0 and this builds both zips and attaches them to a GitHub Release.
+# It can also be run from the Actions tab with a version number.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to build, without the leading v (e.g. 1.2.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test tests/SevenSeas.Tests/SevenSeas.Tests.csproj -c Release
+
+      - name: Work out the tag and version
+        id: meta
+        shell: pwsh
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          $ref = if ($env:EVENT_NAME -eq 'workflow_dispatch') { "v$($env:INPUT_VERSION)" } else { $env:REF_NAME }
+          $version = $ref -replace '^v', ''
+          "tag=$ref" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build the standalone zip (.NET bundled)
+        shell: pwsh
+        run: ./scripts/package-release.ps1 -Version ${{ steps.meta.outputs.version }} -SelfContained
+
+      - name: Build the small zip (needs .NET 8 Desktop Runtime)
+        shell: pwsh
+        run: ./scripts/package-release.ps1 -Version ${{ steps.meta.outputs.version }}
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: 7SeasLauncher ${{ steps.meta.outputs.version }}
+          files: release/*.zip
+          body: |
+            ## Download
+
+            Two builds, same app — pick one:
+
+            | File | Size | Needs |
+            |---|---|---|
+            | `7SeasLauncher-${{ steps.meta.outputs.version }}-win-x64-standalone.zip` | ~67 MB | Nothing but Windows; the .NET runtime is bundled |
+            | `7SeasLauncher-${{ steps.meta.outputs.version }}-win-x64-needs-dotnet8.zip` | ~6 MB | [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) |
+
+            Unzip anywhere and run `7SeasLauncher.exe`. No installer, no account.
+
+            Windows SmartScreen will warn you because the build is unsigned — click **More info → Run anyway**.
+
+            Both builds need the Microsoft Edge WebView2 Runtime, which is already present on Windows 11
+            and most Windows 10 machines.

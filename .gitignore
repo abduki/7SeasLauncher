@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+publish/
+*.user
+*.suo
+
+# Packaged releases (reproducible with scripts/package-release.ps1)
+release/
+
+# Diagnostics exports
+7seas-diagnostics-*.zip
+
+# OS noise
+Thumbs.db
+desktop.ini
