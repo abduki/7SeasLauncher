@@ -121,9 +121,17 @@ public partial class BrowserView : UserControl
             var userDataFolder = Path.Combine(AppPaths.AppDataRoot, "webview2");
             Directory.CreateDirectory(userDataFolder);
 
+            // Browser extensions power the ad blocker. Nothing is loaded from a store: the API only
+            // accepts an unpacked folder on disk.
+            var options = new CoreWebView2EnvironmentOptions
+            {
+                AreBrowserExtensionsEnabled = true,
+            };
+
             var environment = await CoreWebView2Environment.CreateAsync(
                 browserExecutableFolder: null,
-                userDataFolder: userDataFolder);
+                userDataFolder: userDataFolder,
+                options: options);
 
             await Web.EnsureCoreWebView2Async(environment);
 
@@ -141,6 +149,21 @@ public partial class BrowserView : UserControl
             if (!string.IsNullOrWhiteSpace(start))
             {
                 NavigateAddress(start);
+            }
+
+            // Deliberately after the first navigation: the very first run downloads the ad blocker,
+            // which takes long enough that blocking the browser on it would be noticed.
+            try
+            {
+                if (await AdBlocker.EnsureInstalledAsync(Web.CoreWebView2, _logger) is { } blocker)
+                {
+                    _viewModel.Report(blocker + " is blocking ads.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // An ad blocker must never stop the browser from coming up.
+                _logger.LogWarning(ex, "Ad blocker could not be installed.");
             }
         }
         catch (Exception ex)

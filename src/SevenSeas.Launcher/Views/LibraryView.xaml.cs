@@ -75,9 +75,10 @@ public partial class LibraryView : UserControl
         return null;
     }
 
-    private void OnRefreshClick(object sender, RoutedEventArgs e)
+    private async void OnRefreshClick(object sender, RoutedEventArgs e)
     {
-        _viewModel.Refresh();
+        // Re-reads the library and re-queries cover art, so it is not instant.
+        await _viewModel.RefreshCoverArtAsync();
         UpdateEmptyState();
     }
 

@@ -147,6 +147,7 @@ public partial class App : Application
         // Foundation + pipeline.
         services.AddSingleton<TrashService>();
         services.AddSingleton<SpaceCleanupService>();
+        services.AddSingleton<LibraryFolderMigrator>();
         services.AddSingleton<DownloadIntakeService>();
         services.AddSingleton<PipelineWorker>();
 

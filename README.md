@@ -42,9 +42,19 @@ verifying, fetching metadata, unpacking, locating the executable. Jobs survive a
 stopped, and finished ones can be cleared.
 
 **Library** — a cover-art grid backed by SQLite. Rename a game and the metadata lookup runs again;
-point a tile at a different executable without leaving the window. Launching is a single click.
+point a tile at a different executable without leaving the window. **Refresh** re-queries SteamGridDB
+for every cover, one request at a time so a large library cannot trip the rate limit. Launching is a
+single click.
 
-**Settings** — folders, SteamGridDB API key, bookmarks, and an antivirus-exclusions helper.
+**Settings** — folders, SteamGridDB API key, bookmarks, and an antivirus-exclusions helper. Changing
+the games folder offers to move the installed games with it, and rewrites the stored paths either
+way, so the library never ends up pointing at a folder that has gone.
+
+**Ad blocking** — uBlock Origin Lite runs inside the embedded browser. WebView2 can host extensions,
+but only from an unpacked folder on disk, and it has no extension UI — so the app fetches the
+extension on first run and enables 15 of its rulesets in code, where the stock build enables six.
+Against [AdBlock Tester](https://adblock-tester.com/) that is 91/100, versus 43 with no blocker. The
+extension is downloaded rather than bundled: it is GPL-3.0 and this project is MIT.
 
 ## Built with
 

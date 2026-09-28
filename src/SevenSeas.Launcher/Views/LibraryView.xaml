@@ -11,7 +11,7 @@
     <Grid Grid.Row="0" Margin="4,4,4,12">
       <TextBlock Text="Library" Style="{StaticResource PageTitle}" VerticalAlignment="Center" />
       <Button HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnRefreshClick"
-              ToolTip="Re-read the library database" AutomationProperties.Name="Refresh library">
+              ToolTip="Re-read the library and fetch cover art again" AutomationProperties.Name="Refresh library">
         <StackPanel Orientation="Horizontal">
           <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,6,0" />
           <TextBlock Text="Refresh" VerticalAlignment="Center" />

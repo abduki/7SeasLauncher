@@ -21,6 +21,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly GameLauncherService _launcher;
     private readonly AntivirusExclusionService _antivirus;
     private readonly SpaceCleanupService _cleanup;
+    private readonly LibraryFolderMigrator _migrator;
     private readonly StatusService _status;
     private readonly ILogger<SettingsViewModel> _logger;
 
@@ -53,6 +54,7 @@ public partial class SettingsViewModel : ObservableObject
         GameLauncherService launcher,
         AntivirusExclusionService antivirus,
         SpaceCleanupService cleanup,
+        LibraryFolderMigrator migrator,
         StatusService status,
         ILogger<SettingsViewModel>? logger = null)
     {
@@ -63,6 +65,7 @@ public partial class SettingsViewModel : ObservableObject
         _launcher = launcher ?? throw new ArgumentNullException(nameof(launcher));
         _antivirus = antivirus ?? throw new ArgumentNullException(nameof(antivirus));
         _cleanup = cleanup ?? throw new ArgumentNullException(nameof(cleanup));
+        _migrator = migrator ?? throw new ArgumentNullException(nameof(migrator));
         _status = status ?? throw new ArgumentNullException(nameof(status));
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<SettingsViewModel>.Instance;
 
@@ -117,15 +120,46 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
+        var previousGamesFolder = _settings.Current.GamesFolder;
+        var newGamesFolder = GamesFolder.Trim();
+
+        // Repointing the games folder rewrites every stored path, so settle what happens to the
+        // installed games before saving. Cancelling here has to leave the setting untouched.
+        var plan = _migrator.Plan(previousGamesFolder, newGamesFolder);
+        var stranded = LibraryFolderMigrator.CountStranded(plan);
+        var moveThem = false;
+
+        if (stranded > 0)
+        {
+            var choice = Dialogs.Choose(
+                "Games folder changed",
+                $"{stranded} installed game(s) are still in the old folder:\n\n{previousGamesFolder}\n\n" +
+                $"Move them to the new folder?\n\n{newGamesFolder}",
+                "Move them now",
+                "Leave them where they are",
+                "Cancel the change");
+
+            if (choice < 0)
+            {
+                GamesFolder = previousGamesFolder;
+                _status.Report("Folder change cancelled; the games folders are unchanged.");
+                return;
+            }
+
+            moveThem = choice == 0;
+        }
+
+        var migration = _migrator.Commit(plan, moveThem);
+
         _settings.Update(s =>
         {
-            s.GamesFolder = GamesFolder.Trim();
+            s.GamesFolder = newGamesFolder;
             s.TempFolder = TempFolder.Trim();
             s.TrashFolder = TrashFolder.Trim();
             s.SteamGridDbApiKey = SteamGridDbApiKey.Trim();
         });
 
-        _status.Report("Settings saved.");
+        _status.Report(string.IsNullOrEmpty(migration) ? "Settings saved." : migration);
     }
 
     [RelayCommand]

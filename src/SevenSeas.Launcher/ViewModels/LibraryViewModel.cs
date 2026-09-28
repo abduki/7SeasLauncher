@@ -15,6 +15,8 @@ public partial class LibraryViewModel : ObservableObject
     private readonly GameLauncherService _launcher;
     private readonly IMetadataService _metadata;
     private readonly IExecutableFinder _executableFinder;
+    private readonly ISettingsService _settings;
+    private readonly StatusService _status;
 
     [ObservableProperty]
     private bool isEmpty = true;
@@ -23,16 +25,24 @@ public partial class LibraryViewModel : ObservableObject
         IGameRepository games,
         GameLauncherService launcher,
         IMetadataService metadata,
-        IExecutableFinder executableFinder)
+        IExecutableFinder executableFinder,
+        ISettingsService settings,
+        StatusService status)
     {
         _games = games ?? throw new ArgumentNullException(nameof(games));
         _launcher = launcher ?? throw new ArgumentNullException(nameof(launcher));
         _metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
         _executableFinder = executableFinder ?? throw new ArgumentNullException(nameof(executableFinder));
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _status = status ?? throw new ArgumentNullException(nameof(status));
 
         // The pipeline raises GameAdded from its own thread, and WPF collections may only be changed
         // on the dispatcher — otherwise the exception propagates back and fails an otherwise good job.
         _games.GameAdded += _ => Refresh();
+
+        // Changing the games folder rewrites every stored path, so the grid has to follow.
+        _settings.SettingsChanged += _ => Refresh();
+
         Refresh();
     }
 
@@ -50,6 +60,63 @@ public partial class LibraryViewModel : ObservableObject
 
         IsEmpty = Games.Count == 0;
     });
+
+    /// <summary>
+    /// Re-reads the library and re-queries SteamGridDB for every game's cover art.
+    ///
+    /// Lookups run one at a time with a pause between them: the API is rate limited and a burst
+    /// would get the key blocked. Games whose art has not changed are left alone so a refresh does
+    /// not rewrite rows for nothing.
+    /// </summary>
+    public async Task RefreshCoverArtAsync()
+    {
+        Refresh();
+
+        var games = _games.GetAllGames();
+        if (games.Count == 0)
+        {
+            _status.Report("The library is empty.");
+            return;
+        }
+
+        _status.Report($"Refreshing cover art for {games.Count} game(s)\u2026");
+
+        var updated = 0;
+        var missed = 0;
+
+        foreach (var game in games)
+        {
+            try
+            {
+                var metadata = await _metadata.LookupAsync(game.Title);
+
+                // Deliberately not adopting the returned title: a refresh is not a rename.
+                if (metadata.Matched && !string.Equals(game.CoverUrl, metadata.CoverUrl, StringComparison.Ordinal))
+                {
+                    game.CoverUrl = metadata.CoverUrl;
+                    _games.Update(game);
+                    updated++;
+                }
+                else if (!metadata.Matched)
+                {
+                    missed++;
+                }
+            }
+            catch (Exception)
+            {
+                // Metadata is a nicety; a failed lookup must not abort the whole refresh.
+                missed++;
+            }
+
+            await Task.Delay(250);
+        }
+
+        Refresh();
+
+        _status.Report(missed == 0
+            ? $"Cover art refreshed for {updated} game(s)."
+            : $"Cover art refreshed for {updated} game(s); {missed} had no match.");
+    }
 
     private static void OnUiThread(Action action)
     {

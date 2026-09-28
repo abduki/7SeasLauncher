@@ -12,6 +12,9 @@ public static class AppPaths
 
     public static string LogsFolder => Path.Combine(AppDataRoot, "logs");
 
+    /// <summary>The ad blocker build lives here, one folder per version.</summary>
+    public static string ExtensionsFolder => Path.Combine(AppDataRoot, "extensions");
+
     /// <summary>Schemes ship next to the executable so users can drop JSON files beside the app.</summary>
     public static string SchemesFolder => Path.Combine(AppContext.BaseDirectory, "schemes");
 
@@ -19,5 +22,6 @@ public static class AppPaths
     {
         Directory.CreateDirectory(AppDataRoot);
         Directory.CreateDirectory(LogsFolder);
+        Directory.CreateDirectory(ExtensionsFolder);
     }
 }
